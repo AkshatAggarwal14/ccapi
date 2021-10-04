@@ -241,7 +241,7 @@ def rec(username):
 	rating_table_rows = rating_table.find_all('td')
 	ret=[]
 	a = 0
-	for i in range(int(len(rating_table_rows)/5)):
+	for _ in range(int(len(rating_table_rows)/5)):
 		timesp = rating_table_rows[a].text.split()
 		timeper = ' '.join(timesp)
 		pc = str(rating_table_rows[a+1].text)

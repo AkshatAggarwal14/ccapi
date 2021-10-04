@@ -29,7 +29,7 @@ def problemscrape(level):
 	rating_table = soup.find('table', class_='dataTable')
 	rating_table_rows = rating_table.find_all('td')
 	b = 0
-	for i in range(int(int(len(rating_table_rows))/4)):
+	for _ in range(int(int(len(rating_table_rows))/4)):
 		a = str(rating_table_rows[b].text)
 		a = a.strip()
 		a = a.strip('\n')

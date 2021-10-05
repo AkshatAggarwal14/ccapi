@@ -1,7 +1,9 @@
 from fastapi import FastAPI
-import codechef, time
-#import scrape from scraper
+import codechef
+import time
+# import scrape from scraper
 app = FastAPI()
+
 
 @app.get("/gimme")
 async def gimme(handle, level: str):
@@ -10,12 +12,12 @@ async def gimme(handle, level: str):
 
 
 @app.get("/stalk")
-async def stalk(handle: str, limit: int = 5):
-    resp = await codechef.stalk(handle, limit)
+async def stalk(handle: str, pageLimit: int = 5, respLimit: int = 5):
+    resp = await codechef.stalk(handle, pageLimit, respLimit)
     return resp
 
 
 @app.get("/upsolve")
-async def upsolve(handle):
-    resp = await codechef.upsolve(handle)
+async def upsolve(handle: str, limit: int = 50):
+    resp = await codechef.upsolve(handle, limit)
     return resp

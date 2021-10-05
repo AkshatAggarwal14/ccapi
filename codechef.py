@@ -79,18 +79,19 @@ async def upsolve(handle, limit=50):
             return {"response": partially_solved}
 
 
-async def stalk(handle, limit=5):
+async def stalk(handle, pageLimit, respLimit):
     async with aiohttp.ClientSession() as session:
         ret = []
-        for i in range(limit):
-            rurl = 'https://www.codechef.com/recent/user?page={}&user_handle={}&_={}'.format(
-                i, handle, int(time.time()))
+        for i in range(pageLimit):
+            rurl = f'https://www.codechef.com/recent/user?page={i}&user_handle={handle}&_={int(time.time())}'
             async with session.get(rurl, headers=stalkHeaders) as page:
                 page = await page.json(content_type=None)
                 page = BeautifulSoup(page["content"], 'html.parser')
                 rating_table_rows = page.find_all('td')
                 a = 0
                 for _ in range(int(len(rating_table_rows)/5)):
+                    if(len(ret) >= respLimit):
+                        return ({"response": ret})
                     timesp = rating_table_rows[a].text.split()
                     timeper = ' '.join(timesp)
                     pc = str(rating_table_rows[a+1].text)

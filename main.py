@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 import codechef
 import time
-# import scrape from scraper
-app = FastAPI()
+from scraper import scrape 
+import asyncio
+import os
+import shutil
 
+app = FastAPI()
 
 @app.get("/gimme")
 async def gimme(handle, level: str):
@@ -21,3 +24,17 @@ async def stalk(handle: str, limit: int = 120):
 async def upsolve(handle: str, limit: int = 50):
     resp = await codechef.upsolve(handle, limit)
     return resp
+
+@app.on_event("startup")
+async def startup():
+    try:
+        os.mkdir("data")
+    except FileExistsError:
+        shutil.rmtree("data")
+        os.mkdir("data")
+    await scrape()
+    
+@app.on_event("shutdown")
+def shutdown():
+    shutil.rmtree("data")
+    

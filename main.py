@@ -12,8 +12,8 @@ async def gimme(handle, level: str):
 
 
 @app.get("/stalk")
-async def stalk(handle: str, pageLimit: int = 5, respLimit: int = 5):
-    resp = await codechef.stalk(handle, pageLimit, respLimit)
+async def stalk(handle: str, limit: int = 120):
+    resp = await codechef.stalk(handle, limit)
     return resp
 
 

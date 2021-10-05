@@ -47,55 +47,28 @@ async def upsolve(handle, limit=50):
     async with aiohttp.ClientSession() as session:
         rurl = f'https://www.codechef.com/users/{handle}'
         async with session.get(rurl, headers=upsolveHeaders) as page:
-            page = await page.text()
-            soup = BeautifulSoup(page, 'html.parser')
-            problem_solved_section = soup.find(
-                'section', class_='rating-data-section problems-solved')
-            try:
+            if page.status == 200:
+                page = await page.text()
+                soup = BeautifulSoup(page, 'html.parser')
+                problem_solved_section = soup.find('section', class_='rating-data-section problems-solved')
                 no_solved = problem_solved_section.find_all('h5')
-            except:
-                return {"response": "Handle not found!"}
-            categories = problem_solved_section.find_all('article')
-            partially_solved = []
-            names = []
-            count = int(re.findall(r'\d+', no_solved[1].text)[0])
-            if count != 0:
-                for category in categories[1].find_all('p'):
-                    if len(partially_solved) >= limit:
-                        break
-                    # category_name = category.find('strong').text[:-1]
-                    for prob in category.find_all('a'):
-                        if len(partially_solved) >= limit:
-                            break
-                        url = prob['href']
-                        urlParts = url[1:].split('/')
-                        if urlParts[0] == 'status':
-                            url = urlParts[1]
-                        else:
-                            url = urlParts[2]
-                        url = 'https://www.codechef.com/' + \
-                            url.split(',', 1)[0]
-                        partially_solved.append(
-                            {'name': prob.text, 'url': url})
-                        names.append(prob.text)
-            stalkData = await stalk(handle, 10, 120)
-            for resp in stalkData['response']:
-                # print(resp)
-                if resp["result"] != "100[100pts]":
-                    if resp["name"] not in names:
-                        names.append(resp["name"])
-                        if len(partially_solved) >= limit:
-                            break
-                        partially_solved.append(
-                            {"name": resp["name"], 'url': "https://www.codechef.com/"+resp["name"]})
-            # random.shuffle(partially_solved)
+                categories = problem_solved_section.find_all('article')
+                partially_solved = []
+                count = int(re.findall(r'\d+', no_solved[1].text)[0])
+                if count != 0:
+                    for category in categories[1].find_all('p'):
+                        for prob in category.find_all('a'):
+                            partially_solved.append({'name': prob.text, 'url': f"https://www.codechef.com/problems/{prob.text}"})
+                            if len(partially_solved) >= limit:
+                                return {"response": partially_solved}
             return {"response": partially_solved}
 
 
-async def stalk(handle, pageLimit, respLimit):
+async def stalk(handle, limit = 120):
     async with aiohttp.ClientSession() as session:
         ret = []
-        for i in range(pageLimit):
+        rlimit = limit/12 if limit%12 == 0  else (limit/12) + 1
+        for i in range(int(rlimit)):
             rurl = f'https://www.codechef.com/recent/user?page={i}&user_handle={handle}&_={int(time.time())}'
             async with session.get(rurl, headers=stalkHeaders) as page:
                 page = await page.json(content_type=None)
@@ -103,8 +76,6 @@ async def stalk(handle, pageLimit, respLimit):
                 rating_table_rows = page.find_all('td')
                 a = 0
                 for _ in range(int(len(rating_table_rows)/5)):
-                    if(len(ret) >= respLimit):
-                        return ({"response": ret})
                     timesp = rating_table_rows[a].text.split()
                     timeper = ' '.join(timesp)
                     pc = str(rating_table_rows[a+1].text)
@@ -118,7 +89,8 @@ async def stalk(handle, pageLimit, respLimit):
                         sid = sid.replace('/viewsolution/', '')
                     except:
                         sid = "1"
-                    ret.append({'name': pc, 'time': timeper,
-                               'result': res, 'language': lang, 'solution': sid})
+                    ret.append({'name': pc, 'time': timeper, 'result': res, 'language': lang, 'solution': sid})
+                    if len(ret) >= limit:
+                        break
                     a += 5
         return ({"response": ret})

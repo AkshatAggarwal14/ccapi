@@ -78,7 +78,7 @@ async def upsolve(handle, limit=50):
                         partially_solved.append(
                             {'name': prob.text, 'url': url})
                         names.append(prob.text)
-            stalkData = await stalk(handle, 5, 60)
+            stalkData = await stalk(handle, 10, 120)
             for resp in stalkData['response']:
                 # print(resp)
                 if resp["result"] != "100[100pts]":

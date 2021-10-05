@@ -208,7 +208,7 @@ class UserData:
 			rating_table_rows = rating_table.find_all('td')
 			ret=[]
 			a = 0
-			for i in range(int(len(rating_table_rows)/5)):
+			for _ in range(int(len(rating_table_rows)/5)):
 				timesp = rating_table_rows[a].text.split()
 				timeper = ' '.join(timesp)
 				pc = str(rating_table_rows[a+1].text)
@@ -233,7 +233,7 @@ class UserData:
 				   'global_rank': global_rank, 'country_rank': country_rank,
 				   'user_details': user_details_get(), 'submissions': submission_get(), 'recent': recent(), 'contests': contests_details_get(),
 				   'contest_ratings': contest_rating_details_get(), 'fully_solved': full, 'partially_solved': partial}
-		except Exception as e:
+		except Exception:
 			return {"status": 500, "message": "Internal Server Error. Administrator Has Been Informed. Please Try Back Later"}
 		
 		return details

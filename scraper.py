@@ -29,16 +29,19 @@ async def scrape():
 		async with aiohttp.ClientSession() as session:
 			rurl = f"https://www.codechef.com/problems/{level}"
 			async with session.get(rurl, headers=Headers) as page:
-				page = await page.text()
-				soup = BeautifulSoup(page, 'html.parser')
-				rating_table = soup.find('table', class_='dataTable')
-				rating_table_rows = rating_table.find_all('td')
-				b = 0
-				for i in range(int(int(len(rating_table_rows))/4)):
-					a = str(rating_table_rows[b].text)
-					a = a.strip()
-					a = a.strip('\n')
-					problems.append({'name' : a, 'id' : rating_table_rows[b + 1].text, 'submissions' : rating_table_rows[b + 2].text, 'accuracy' : rating_table_rows[b + 3].text})
-					b += 4
+				try:
+					page = await page.text()
+					soup = BeautifulSoup(page, 'html.parser')
+					rating_table = soup.find('table', class_='dataTable')
+					rating_table_rows = rating_table.find_all('td')
+					b = 0
+					for i in range(int(int(len(rating_table_rows))/4)):
+						a = str(rating_table_rows[b].text)
+						a = a.strip()
+						a = a.strip('\n')
+						problems.append({'name' : a, 'id' : rating_table_rows[b + 1].text, 'submissions' : rating_table_rows[b + 2].text, 'accuracy' : rating_table_rows[b + 3].text})
+						b += 4
+				except:
+					pass
 				with open(f"data/{level}", 'w') as f:
 					json.dump(problems, f)

@@ -47,7 +47,7 @@ stalkHeaders = {
 async def upsolve(handle, limit=50, cat = 1):
 	async with aiohttp.ClientSession() as session:
 		rurl = f'https://www.codechef.com/users/{handle}'
-		async with session.get(rurl, headers=upsolveHeaders) as page:
+		async with session.get(rurl, headers=upsolveHeaders, allow_redirects = False) as page:
 			if page.status == 200:
 				page = await page.text()
 				soup = BeautifulSoup(page, 'html.parser')
@@ -65,8 +65,9 @@ async def upsolve(handle, limit=50, cat = 1):
 								partially_solved.append({'name': prob.text, 'url': f"https://www.codechef.com/problems/{prob.text}"})
 							if len(partially_solved) >= limit:
 								return {"response": partially_solved}
-			return {"response": partially_solved}
-
+				return {"response": partially_solved}
+			else:
+				return {"comment": "Error Occured"}
 
 async def stalk(handle, limit = 120):
 	async with aiohttp.ClientSession() as session:
@@ -75,36 +76,40 @@ async def stalk(handle, limit = 120):
 		for i in range(int(rlimit)):
 			rurl = f'https://www.codechef.com/recent/user?page={i}&user_handle={handle}&_={int(time.time())}'
 			async with session.get(rurl, headers=stalkHeaders) as page:
-				page = await page.json(content_type=None)
-				page = BeautifulSoup(page["content"], 'html.parser')
-				rating_table_rows = page.find_all('td')
-				a = 0
-				for _ in range(int(len(rating_table_rows)/5)):
-					timesp = rating_table_rows[a].text.split()
-					timeper = ' '.join(timesp)
-					pc = str(rating_table_rows[a+1].text)
-					if str(rating_table_rows[a+2].span['title']) == '':
-						res = str(rating_table_rows[a+2].span.text)
-					else:
-						res = str(rating_table_rows[a+2].span['title'])
-					lang = str(rating_table_rows[a+3].text)
-					try:
-						sid = str(rating_table_rows[a+4].a['href'])
-						sid = sid.replace('/viewsolution/', '')
-					except:
-						sid = "1"
-					ret.append({'name': pc, 'time': timeper, 'result': res, 'language': lang, 'solution': sid})
-					if len(ret) >= limit:
-						break
-					a += 5
+				if page.status == 200:
+					page = await page.json(content_type=None)
+					page = BeautifulSoup(page["content"], 'html.parser')
+					rating_table_rows = page.find_all('td')
+					a = 0
+					for _ in range(int(len(rating_table_rows)/5)):
+						timesp = rating_table_rows[a].text.split()
+						timeper = ' '.join(timesp)
+						pc = str(rating_table_rows[a+1].text)
+						if str(rating_table_rows[a+2].span['title']) == '':
+							res = str(rating_table_rows[a+2].span.text)
+						else:
+							res = str(rating_table_rows[a+2].span['title'])
+						lang = str(rating_table_rows[a+3].text)
+						try:
+							sid = str(rating_table_rows[a+4].a['href'])
+							sid = sid.replace('/viewsolution/', '')
+						except:
+							sid = "1"
+						ret.append({'name': pc, 'time': timeper, 'result': res, 'language': lang, 'solution': sid})
+						if len(ret) >= limit:
+							break
+						a += 5
 		return ({"response": ret})
 async def gimme(handle, level):
 	with open(f"data/{level}", 'r') as f:
 		pdata = json.load(f)
 	sdata = await upsolve(handle, 1000000, 0)
 	solved = []
-	for i in sdata["response"]:
-		solved.append(i)
+	try:
+		for i in sdata["response"]:
+			solved.append(i)
+	except:
+		pass
 	recommend = []
 	for i in pdata:
 		if i["id"] not in solved:

@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 import codechef
 import time
-from scraper import scrape 
+from scraper import scrape
 import asyncio
 import os
 import shutil
 from fastapi.openapi.utils import get_openapi
-app = FastAPI(title = "Unofficial Codechef Api", redoc_url = "/")
+app = FastAPI(title="Unofficial Codechef Api", redoc_url="/")
+
 
 @app.get("/gimme")
 async def gimme(handle, level: str):
@@ -25,6 +26,7 @@ async def upsolve(handle: str, limit: int = 50):
     resp = await codechef.upsolve(handle, limit)
     return resp
 
+
 @app.on_event("startup")
 async def startup():
     try:
@@ -33,10 +35,12 @@ async def startup():
         shutil.rmtree("data")
         os.mkdir("data")
     await scrape()
-    
+
+
 @app.on_event("shutdown")
 def shutdown():
     shutil.rmtree("data")
+
 
 def custom_openapi():
     if app.openapi_schema:

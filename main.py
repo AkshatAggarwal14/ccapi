@@ -5,8 +5,8 @@ from scraper import scrape
 import asyncio
 import os
 import shutil
-
-app = FastAPI()
+from fastapi.openapi.utils import get_openapi
+app = FastAPI(title = "Unofficial Codechef Api", redoc_url = "/")
 
 @app.get("/gimme")
 async def gimme(handle, level: str):
@@ -37,4 +37,22 @@ async def startup():
 @app.on_event("shutdown")
 def shutdown():
     shutil.rmtree("data")
-    
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Unofficial Codechef API",
+        version="1.1.0",
+        description="",
+        routes=app.routes,
+    )
+    print(openapi_schema["info"])
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://imgur.com/a/BaXuCsh"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi

@@ -108,7 +108,7 @@ async def stalk(handle, limit=120):
 
 
 async def gimme(handle, level):
-    with open(f"data/{level}.json", 'r') as f:
+    with open(f"data/{level.lower()}.json", 'r') as f:
         pdata = json.load(f)
     sdata = await upsolve(handle, 1000000, 0)
     solved = []

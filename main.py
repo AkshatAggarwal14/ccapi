@@ -30,7 +30,7 @@ async def upsolve(handle: str, limit: int = 50):
 
 @app.get('/favicon.ico')
 async def favicon():
-    return FileResponse("https://i.ibb.co/zhW9Q8c/logo.png")
+    return FileResponse("./logo.png")
 
 
 @app.on_event("startup")

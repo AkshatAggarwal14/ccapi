@@ -5,6 +5,7 @@ from scraper import scrape
 import asyncio
 import os
 import shutil
+from starlette.responses import FileResponse
 from fastapi.openapi.utils import get_openapi
 app = FastAPI(title="Unofficial Codechef Api", redoc_url="/")
 
@@ -25,6 +26,11 @@ async def stalk(handle: str, limit: int = 120):
 async def upsolve(handle: str, limit: int = 50):
     resp = await codechef.upsolve(handle, limit)
     return resp
+
+
+@app.get('/favicon.ico')
+async def favicon():
+    return FileResponse("https://i.ibb.co/zhW9Q8c/logo.png")
 
 
 @app.on_event("startup")

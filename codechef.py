@@ -99,7 +99,8 @@ async def stalk(handle, limit=120):
                         except:
                             sid = "1"
                         ret.append(
-                            {'name': pc, 'time': timeper, 'result': res, 'language': lang, 'solution': sid})
+                            {'name': pc, 'time': timeper, 'result': res, 'language': lang, 'solution': sid,
+                             'link': "https://www.codechef.com/viewsolution/"+sid})
                         if len(ret) >= limit:
                             break
                         a += 5
